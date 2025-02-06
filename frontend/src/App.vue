@@ -53,11 +53,8 @@ export default {
       formData.append('file', this.file);
       formData.append('language', this.language);
 
-      // Build the backend URL using environment variables
-      const backendUrl = `${import.meta.env.VITE_BACKEND_URL}:${import.meta.env.VITE_BACKEND_PORT}`;
-
       try {
-        const response = await fetch(`${backendUrl}/transcribe`, {
+        const response = await fetch('http://localhost:5001/transcribe', {
           method: 'POST',
           body: formData,
         });
