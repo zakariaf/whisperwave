@@ -26,13 +26,16 @@ def transcribe_audio():
     # Get language parameter (default to "en" if not provided)
     language = request.form.get("language", "en")
 
-    # Send only the file path to Whisper
+    # Debug: Print file path before sending
+    print(f"📤 Sending to Whisper: file_path={file_path}, language={language}", flush=True)
+
     response = requests.post(WHISPER_URL, json={"file_path": file_path, "language": language})
 
     if response.status_code == 200:
         transcription = response.json()["transcription"]
         return jsonify({"transcription": transcription})
     else:
+        print(f"❌ Whisper Error: {response.json()}", flush=True)
         return jsonify({"error": "Failed to transcribe"}), 500
 
 if __name__ == "__main__":
