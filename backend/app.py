@@ -7,7 +7,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/uploads"  # Shared volume path
 WHISPER_URL = "http://whisper:6000/transcribe"  # Whisper Service API URL
 
 # Ensure the upload folder exists

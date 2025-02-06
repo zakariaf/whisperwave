@@ -6,7 +6,7 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - ./backend:/app
+      - shared_uploads:/uploads  # Shared volume for audio files
     environment:
       - FLASK_ENV=development
     depends_on:
@@ -27,4 +27,9 @@ services:
     build: ./whisper
     ports:
       - "6000:6000"
+    volumes:
+      - shared_uploads:/uploads  # Same shared volume as backend
     restart: always
+
+volumes:
+  shared_uploads:
