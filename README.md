@@ -9,7 +9,7 @@
 - Fully Dockerized with **Docker Compose**.
 - Uses **Whisper as a separate service** for scalability.
 
-![WhisperWave Screenshot](frontend/public/screenshot.png)
+![WhisperWave Screenshot](screenshot.png)
 
 ---
 
