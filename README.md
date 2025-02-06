@@ -1,4 +1,5 @@
 # WhisperWave 🎙️➡️📝
+
 **AI-Powered Audio Transcription App** using OpenAI’s Whisper model.
 
 ## 🚀 Features
@@ -8,25 +9,7 @@
 - Fully Dockerized with **Docker Compose**.
 - Uses **Whisper as a separate service** for scalability.
 
----
-
-## 📌 Why is Whisper a Separate Service? 🤔
-
-### **1️⃣ Better Scalability**
-- The Whisper service runs independently, allowing **the backend and frontend to scale separately**.
-- If multiple users upload audio files, Whisper can **run on its own container without blocking the backend**.
-
-### **2️⃣ Performance Optimization**
-- Whisper is a **heavy machine learning model**. Keeping it separate ensures **Flask doesn't slow down** while transcribing audio.
-- This setup allows for **future GPU acceleration**, making it faster when deployed in cloud environments.
-
-### **3️⃣ Flexibility for Multiple Models**
-- You can deploy **different Whisper models** (`base`, `large`) in separate services.
-- The backend can **dynamically select which model to use**, depending on the request.
-
-### **4️⃣ Reusability for Other Applications**
-- Other apps (mobile apps, other web services) can **use the Whisper API** without needing to integrate Flask.
-- The Whisper service can be deployed **independently** on cloud platforms like **AWS, GCP, or DigitalOcean**.
+![WhisperWave Screenshot](frontend/public/screenshot.png)
 
 ---
 
@@ -115,6 +98,26 @@ Then restart:
 docker-compose down
 docker-compose up --build
 ```
+
+---
+
+## 📌 Why is Whisper a Separate Service? 🤔
+
+### **1️⃣ Better Scalability**
+- The Whisper service runs independently, allowing **the backend and frontend to scale separately**.
+- If multiple users upload audio files, Whisper can **run on its own container without blocking the backend**.
+
+### **2️⃣ Performance Optimization**
+- Whisper is a **heavy machine learning model**. Keeping it separate ensures **Flask doesn't slow down** while transcribing audio.
+- This setup allows for **future GPU acceleration**, making it faster when deployed in cloud environments.
+
+### **3️⃣ Flexibility for Multiple Models**
+- You can deploy **different Whisper models** (`base`, `large`) in separate services.
+- The backend can **dynamically select which model to use**, depending on the request.
+
+### **4️⃣ Reusability for Other Applications**
+- Other apps (mobile apps, other web services) can **use the Whisper API** without needing to integrate Flask.
+- The Whisper service can be deployed **independently** on cloud platforms like **AWS, GCP, or DigitalOcean**.
 
 ---
 
