@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - whisper
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"  # Vite dev server runs on port 5173
+    volumes:
+      - ./frontend:/app  # Mounts local frontend files for hot reloading
+      - /app/node_modules  # Prevents overwriting node_modules inside Docker
+    command: ["npm", "run", "dev", "--", "--host"]  # Run Vue in development mode
+    depends_on:
+      - backend
+
+  whisper:
+    build: ./whisper
+    ports:
+      - "6000:6000"
+    restart: always
