@@ -29,6 +29,8 @@ services:
       - "6000:6000"
     volumes:
       - shared_uploads:/uploads  # Same shared volume as backend
+    environment:
+      - OPENAI_API_KEY=your_openai_api_key_here  # Replace with your actual API key
     restart: always
 
 volumes:

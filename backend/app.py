@@ -1,42 +1,54 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import requests
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
-from flask_cors import CORS
+import uuid
+import werkzeug.utils
 
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = "/uploads"  # Shared volume path
-WHISPER_URL = "http://whisper:6000/transcribe"  # Whisper Service API URL
+UPLOAD_FOLDER = '/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+WHISPER_SERVICE_URL = 'http://whisper:6000/transcribe'
 
-# Ensure the upload folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+@app.route('/transcribe', methods=['POST'])
+def transcribe():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
 
-@app.route("/transcribe", methods=["POST"])
-def transcribe_audio():
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+    file = request.files['file']
+    language = request.form.get('language', 'en')
+    mode = request.form.get('mode', 'local')  # Get the transcription mode
 
-    file = request.files["file"]
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(file_path)
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
 
-    # Get language parameter (default to "en" if not provided)
-    language = request.form.get("language", "en")
+    if file and file.filename.endswith('.wav'):
+        # Save file with unique name to prevent conflicts
+        filename = str(uuid.uuid4()) + '.wav'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
 
-    # Debug: Print file path before sending
-    print(f"📤 Sending to Whisper: file_path={file_path}, language={language}", flush=True)
+        # Call Whisper service
+        try:
+            response = requests.post(
+                WHISPER_SERVICE_URL,
+                json={
+                    'file_path': file_path,
+                    'language': language,
+                    'mode': mode  # Pass the transcription mode
+                }
+            )
 
-    response = requests.post(WHISPER_URL, json={"file_path": file_path, "language": language})
+            if response.status_code == 200:
+                return jsonify(response.json())
+            else:
+                return jsonify({'error': f'Whisper service error: {response.text}'}), 500
+        except Exception as e:
+            return jsonify({'error': f'Failed to communicate with Whisper service: {str(e)}'}), 500
 
-    if response.status_code == 200:
-        transcription = response.json()["transcription"]
-        return jsonify({"transcription": transcription})
-    else:
-        print(f"❌ Whisper Error: {response.json()}", flush=True)
-        return jsonify({"error": "Failed to transcribe"}), 500
+    return jsonify({'error': 'Only WAV files are supported'}), 400
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

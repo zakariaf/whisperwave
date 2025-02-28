@@ -11,6 +11,9 @@
     <!-- Language Select Component -->
     <LanguageSelect v-model="language" />
 
+    <!-- Transcription Mode Component -->
+    <TranscriptionMode v-model="transcriptionMode" />
+
     <!-- Transcribe Button -->
     <button @click="upload">Transcribe</button>
 
@@ -25,17 +28,20 @@
 <script>
 import FileUploader from './components/FileUploader.vue';
 import LanguageSelect from './components/LanguageSelect.vue';
+import TranscriptionMode from './components/TranscriptionMode.vue';
 
 export default {
   name: 'App',
   components: {
     FileUploader,
     LanguageSelect,
+    TranscriptionMode,
   },
   data() {
     return {
       file: null,
       language: 'en',
+      transcriptionMode: 'local',
       transcription: '',
     };
   },
@@ -52,6 +58,7 @@ export default {
       const formData = new FormData();
       formData.append('file', this.file);
       formData.append('language', this.language);
+      formData.append('mode', this.transcriptionMode);
 
       try {
         const response = await fetch('http://localhost:5001/transcribe', {

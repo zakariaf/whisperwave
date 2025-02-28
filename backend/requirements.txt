@@ -1,4 +1,6 @@
 flask
-werkzeug
 flask-cors
+openai-whisper
+werkzeug
+torch
 requests
