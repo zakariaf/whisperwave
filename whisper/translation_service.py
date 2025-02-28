@@ -24,16 +24,30 @@ LANGUAGE_NAMES = {
 class TranslationService:
     """Service for handling text translations using OpenAI API."""
 
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, model=None, temperature=None):
         """
         Initialize the translation service.
 
         Args:
             api_key (str, optional): OpenAI API key. If None, will try to get from environment.
+            model (str, optional): GPT model to use. If None, will try to get from environment.
+            temperature (float, optional): Model temperature. If None, will try to get from environment.
         """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self.model = model or os.getenv("GPT_MODEL", "gpt-4o-mini")
+
+        # Parse temperature from environment or use default
+        temp_str = os.getenv("GPT_TEMPERATURE", "0.3")
+        try:
+            self.temperature = temperature or float(temp_str)
+        except ValueError:
+            print(f"WARNING: Invalid GPT_TEMPERATURE value '{temp_str}', using default 0.3", flush=True)
+            self.temperature = 0.3
+
         if not self.api_key:
             print("WARNING: No OpenAI API key provided for translation service", flush=True)
+        else:
+            print(f"Translation service initialized with model: {self.model}, temperature: {self.temperature}", flush=True)
 
     def translate(self, text, target_language):
         """
@@ -63,7 +77,7 @@ class TranslationService:
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gpt-4o-mini",
+                    "model": self.model,
                     "messages": [
                         {
                             "role": "system",
@@ -74,7 +88,7 @@ class TranslationService:
                             "content": text
                         }
                     ],
-                    "temperature": 0.3
+                    "temperature": self.temperature
                 }
             )
 
@@ -86,7 +100,8 @@ class TranslationService:
 
                 return {
                     "text": translated_text,
-                    "processing_time": processing_time
+                    "processing_time": processing_time,
+                    "model": self.model
                 }
             else:
                 print(f"Translation API Error: {response.text}", flush=True)

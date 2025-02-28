@@ -11,8 +11,18 @@ from translation_service import TranslationService
 app = Flask(__name__)
 CORS(app)
 
+# Get the Whisper model from environment variable
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+print(f"Loading Whisper model: {WHISPER_MODEL}", flush=True)
+
 # Load Whisper model
-model = whisper.load_model("base")
+try:
+    model = whisper.load_model(WHISPER_MODEL)
+    print(f"Successfully loaded Whisper model: {WHISPER_MODEL}", flush=True)
+except Exception as e:
+    print(f"Error loading Whisper model '{WHISPER_MODEL}': {e}", flush=True)
+    print("Falling back to 'base' model", flush=True)
+    model = whisper.load_model("base")
 
 # Initialize translation service
 translation_service = TranslationService()
@@ -48,7 +58,7 @@ def transcribe():
 
         if transcription_mode == "local":
             # Use local Whisper model - supports both WAV and MP3 directly
-            print(f"Using local Whisper model for {file_type} file", flush=True)
+            print(f"Using local Whisper model {WHISPER_MODEL} for {file_type} file", flush=True)
 
             # Start the timer
             start_time = time.time()
@@ -70,13 +80,14 @@ def transcribe():
                 "analytics": {
                     "processing_time": processing_time,
                     "mode": "local",
-                    "model": "base"
+                    "model": WHISPER_MODEL
                 }
             }
 
             if translation_result:
                 response_data["translation"] = translation_result["text"]
                 response_data["analytics"]["translation_time"] = translation_result["processing_time"]
+                response_data["analytics"]["translation_model"] = translation_result.get("model", "unknown")
 
             return jsonify(response_data)
 
@@ -142,6 +153,7 @@ def transcribe():
                 if translation_result:
                     response_data["translation"] = translation_result["text"]
                     response_data["analytics"]["translation_time"] = translation_result["processing_time"]
+                    response_data["analytics"]["translation_model"] = translation_result.get("model", "unknown")
 
                 return jsonify(response_data)
             else:

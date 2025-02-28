@@ -31,6 +31,9 @@ services:
       - shared_uploads:/uploads  # Same shared volume as backend
     environment:
       - OPENAI_API_KEY=your_openai_api_key_here  # Replace with your actual API key
+      - WHISPER_MODEL=base  # Options: tiny, base, small, medium, large
+      - GPT_MODEL=gpt-4o-mini  # Options: gpt-4o-mini, gpt-4, etc.
+      - GPT_TEMPERATURE=0.3  # Control randomness in translations (0.0-1.0)
     restart: always
 
 volumes:
