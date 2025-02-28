@@ -24,9 +24,9 @@ def transcribe():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    if file and (file.filename.endswith('.wav') or file.filename.endswith('.mp3')):
+    if file and file.filename.lower().endswith(('.wav', '.mp3', '.flac', '.m4a', '.ogg')):
         # Save file with unique name to prevent conflicts
-        extension = '.wav' if file.filename.endswith('.wav') else '.mp3'
+        extension = os.path.splitext(file.filename)[1].lower()
         filename = str(uuid.uuid4()) + extension
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
@@ -49,7 +49,7 @@ def transcribe():
         except Exception as e:
             return jsonify({'error': f'Failed to communicate with Whisper service: {str(e)}'}), 500
 
-    return jsonify({'error': 'Only WAV and MP3 files are supported'}), 400
+    return jsonify({'error': 'Only WAV, MP3, FLAC, M4A, and OGG files are supported'}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

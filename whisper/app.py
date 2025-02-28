@@ -60,12 +60,14 @@ def transcribe():
                 }), 413
 
             # Set the correct MIME type for the API request
-            if file_type == '.wav':
-                file_mime = 'audio/wav'
-            elif file_type == '.mp3':
-                file_mime = 'audio/mpeg'
-            else:
-                file_mime = 'audio/wav'  # Default fallback
+            mime_types = {
+                '.wav': 'audio/wav',
+                '.mp3': 'audio/mpeg',
+                '.flac': 'audio/flac',
+                '.m4a': 'audio/mp4',
+                '.ogg': 'audio/ogg'
+            }
+            file_mime = mime_types.get(file_type, 'audio/wav')  # Default fallback
 
             print(f"Using OpenAI API for {file_type} file with MIME type: {file_mime}", flush=True)
 
