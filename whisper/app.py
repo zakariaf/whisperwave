@@ -3,6 +3,7 @@ import os
 import requests
 import json
 import mimetypes
+import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -44,8 +45,25 @@ def transcribe():
         if transcription_mode == "local":
             # Use local Whisper model - supports both WAV and MP3 directly
             print(f"Using local Whisper model for {file_type} file", flush=True)
+
+            # Start the timer
+            start_time = time.time()
+
+            # Perform transcription
             result = model.transcribe(file_path, fp16=False, language=language)
-            return jsonify({"transcription": result["text"]})
+
+            # Calculate processing time
+            processing_time = time.time() - start_time
+            print(f"Local processing completed in {processing_time:.2f} seconds", flush=True)
+
+            return jsonify({
+                "transcription": result["text"],
+                "analytics": {
+                    "processing_time": processing_time,
+                    "mode": "local",
+                    "model": "base"
+                }
+            })
         else:
             # Use OpenAI API
             if not OPENAI_API_KEY:
@@ -71,6 +89,9 @@ def transcribe():
 
             print(f"Using OpenAI API for {file_type} file with MIME type: {file_mime}", flush=True)
 
+            # Start the timer
+            start_time = time.time()
+
             # Call OpenAI Whisper API
             with open(file_path, "rb") as audio_file:
                 response = requests.post(
@@ -80,9 +101,20 @@ def transcribe():
                     data={"model": "whisper-1", "language": language}
                 )
 
+            # Calculate processing time
+            processing_time = time.time() - start_time
+            print(f"API processing completed in {processing_time:.2f} seconds", flush=True)
+
             if response.status_code == 200:
                 result = response.json()
-                return jsonify({"transcription": result["text"]})
+                return jsonify({
+                    "transcription": result["text"],
+                    "analytics": {
+                        "processing_time": processing_time,
+                        "mode": "api",
+                        "model": "whisper-1"
+                    }
+                })
             else:
                 print(f"OpenAI API Error: {response.text}", flush=True)
                 return jsonify({"error": f"OpenAI API error: {response.status_code}"}), 500

@@ -35,6 +35,9 @@
     <div v-if="transcription" class="result">
       <h2>Transcription Result:</h2>
       <p>{{ transcription }}</p>
+
+      <!-- Analytics Display -->
+      <AnalyticsDisplay :analytics="analytics" />
     </div>
 
     <!-- Transcription History -->
@@ -51,6 +54,7 @@ import FileUploader from './components/FileUploader.vue';
 import LanguageSelect from './components/LanguageSelect.vue';
 import TranscriptionMode from './components/TranscriptionMode.vue';
 import TranscriptionHistory from './components/TranscriptionHistory.vue';
+import AnalyticsDisplay from './components/AnalyticsDisplay.vue';
 
 export default {
   name: 'App',
@@ -59,6 +63,7 @@ export default {
     LanguageSelect,
     TranscriptionMode,
     TranscriptionHistory,
+    AnalyticsDisplay,
   },
   data() {
     return {
@@ -69,7 +74,8 @@ export default {
       isLoading: false,
       errorMessage: '',
       transcriptionHistory: [],
-      selectedFileName: ''
+      selectedFileName: '',
+      analytics: null
     };
   },
   methods: {
@@ -118,6 +124,7 @@ export default {
       this.language = item.language;
       this.transcriptionMode = item.mode;
       this.selectedFileName = item.fileName;
+      this.analytics = item.analytics;
     },
 
     clearHistory() {
@@ -139,6 +146,7 @@ export default {
       // Reset previous results and error messages
       this.transcription = '';
       this.errorMessage = '';
+      this.analytics = null;
       this.isLoading = true;
 
       const formData = new FormData();
@@ -160,6 +168,7 @@ export default {
 
         const data = await response.json();
         this.transcription = data.transcription;
+        this.analytics = data.analytics;
 
         // Save to history
         if (this.transcription && this.file) {
@@ -168,7 +177,8 @@ export default {
             date: new Date().toLocaleString(),
             language: this.language,
             mode: this.transcriptionMode,
-            transcription: this.transcription
+            transcription: this.transcription,
+            analytics: this.analytics
           });
         }
       } catch (error) {
