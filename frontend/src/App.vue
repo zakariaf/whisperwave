@@ -15,7 +15,21 @@
     <TranscriptionMode v-model="transcriptionMode" />
 
     <!-- Transcribe Button -->
-    <button @click="upload">Transcribe</button>
+    <button @click="upload" :disabled="isLoading">
+      <span v-if="!isLoading">Transcribe</span>
+      <span v-else>Transcribing...</span>
+    </button>
+
+    <!-- Loading Indicator -->
+    <div v-if="isLoading" class="loading">
+      <div class="spinner"></div>
+      <p>Processing your audio file...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
 
     <!-- Display Transcription -->
     <div v-if="transcription" class="result">
@@ -43,6 +57,8 @@ export default {
       language: 'en',
       transcriptionMode: 'local',
       transcription: '',
+      isLoading: false,
+      errorMessage: ''
     };
   },
   methods: {
@@ -61,6 +77,11 @@ export default {
         return;
       }
 
+      // Reset previous results and error messages
+      this.transcription = '';
+      this.errorMessage = '';
+      this.isLoading = true;
+
       const formData = new FormData();
       formData.append('file', this.file);
       formData.append('language', this.language);
@@ -74,7 +95,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          alert(`Transcription failed: ${errorData.error || 'Unknown error'}`);
+          this.errorMessage = `Transcription failed: ${errorData.error || 'Unknown error'}`;
           return;
         }
 
@@ -82,7 +103,9 @@ export default {
         this.transcription = data.transcription;
       } catch (error) {
         console.error('Error during transcription:', error);
-        alert('Failed to connect to the transcription service. Please try again.');
+        this.errorMessage = 'Failed to connect to the transcription service. Please try again.';
+      } finally {
+        this.isLoading = false;
       }
     },
   },
