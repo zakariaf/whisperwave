@@ -64,6 +64,15 @@ export default {
   methods: {
     handleFileSelected(file) {
       this.file = file;
+
+      // Auto-select mode based on file size
+      if (file && file.size > 25 * 1024 * 1024 && this.transcriptionMode === 'api') {
+        this.transcriptionMode = 'local';
+        this.errorMessage = 'File size exceeds OpenAI API limit (25MB). Mode switched to local processing automatically.';
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 5000); // Clear message after 5 seconds
+      }
     },
     async upload() {
       if (!this.file) {
