@@ -24,6 +24,9 @@
         <label for="api">OpenAI API</label>
       </div>
     </div>
+    <div v-if="selectedMode === 'api'" class="api-note">
+      Note: OpenAI API has a 25MB file size limit
+    </div>
   </div>
 </template>
 
@@ -69,5 +72,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.api-note {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #d32f2f;
 }
 </style>

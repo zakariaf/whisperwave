@@ -45,6 +45,14 @@ def transcribe():
             if not OPENAI_API_KEY:
                 return jsonify({"error": "OpenAI API key not configured"}), 500
 
+            # Check file size - OpenAI has a 25MB limit
+            file_size = os.path.getsize(file_path)
+            if file_size > 25 * 1024 * 1024:  # 25MB in bytes
+                print(f"File too large for OpenAI API: {file_size} bytes", flush=True)
+                return jsonify({
+                    "error": "File exceeds OpenAI's 25MB limit. Please use a smaller file or the local option."
+                }), 413
+
             # Call OpenAI Whisper API
             with open(file_path, "rb") as audio_file:
                 response = requests.post(

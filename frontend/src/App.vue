@@ -55,6 +55,12 @@ export default {
         return;
       }
 
+      // Check file size if OpenAI API is selected
+      if (this.transcriptionMode === 'api' && this.file.size > 25 * 1024 * 1024) {
+        alert('File size exceeds the OpenAI API limit of 25MB. Please select a smaller file or use the local option.');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('file', this.file);
       formData.append('language', this.language);
@@ -65,10 +71,18 @@ export default {
           method: 'POST',
           body: formData,
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(`Transcription failed: ${errorData.error || 'Unknown error'}`);
+          return;
+        }
+
         const data = await response.json();
         this.transcription = data.transcription;
       } catch (error) {
         console.error('Error during transcription:', error);
+        alert('Failed to connect to the transcription service. Please try again.');
       }
     },
   },

@@ -3,3 +3,4 @@ flask-cors
 openai-whisper
 werkzeug
 torch
+requests
