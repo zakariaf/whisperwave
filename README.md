@@ -5,13 +5,14 @@
 WhisperWave gives you the **best of both worlds**: process audio files locally using the built-in Whisper model OR leverage OpenAI's API for enhanced accuracy. The choice is yours for each file you upload!
 
 ## 🚀 Features
-- Upload `.wav` or `.mp3` files and transcribe them into text.
+- Upload `.wav`, `.mp3`, `.flac`, `.m4a`, or `.ogg` files and transcribe them into text.
 - Select a language before transcription.
 - Choose between local Whisper model or OpenAI API while uploading your file.
 - Both transcription methods work with all supported audio formats.
 - Built with **Vue + Flask + Whisper AI**.
 - Fully Dockerized with **Docker Compose**.
 - Uses **Whisper as a separate service** for scalability.
+- View your transcription history and restore previous results.
 
 ![WhisperWave Screenshot](screenshot.png)
 
@@ -21,7 +22,7 @@ WhisperWave gives you the **best of both worlds**: process audio files locally u
 
 ### How It Works
 
-1. **Upload your audio file** (.wav or .mp3)
+1. **Upload your audio file** (.wav, .mp3, .flac, .m4a, or .ogg)
 2. **Select your language** (English, German, or other supported languages)
 3. **Choose your transcription method**:
    - **Local Whisper**: Process directly on your machine
@@ -64,6 +65,31 @@ docker-compose up --build
 
 ---
 
+## 🎛️ **Transcription Modes**
+
+### **Local Whisper Model**
+- Processes audio files directly on your machine using the containerized Whisper model
+- No file size limitations beyond your system's resources
+- Works offline without external API dependencies
+- Great for larger files or when privacy is a concern
+
+### **OpenAI API**
+- Sends your audio file to OpenAI's servers for processing
+- Often provides more accurate transcriptions, especially for difficult audio
+- Has the following limitations:
+  - Maximum file size is 25MB
+  - Requires an internet connection
+  - Consumes OpenAI API credits
+
+If your file exceeds the 25MB limit for the API mode:
+- The application will automatically alert you
+- You can simply switch to the local mode instead
+- Alternatively, you can compress your audio file or split it into smaller segments
+
+**The choice is yours!** You can easily select which transcription mode to use while uploading your file, giving you the flexibility to choose the best option for each situation.
+
+---
+
 ## 📄 API Endpoints (Flask)
 
 ### 🎙️ **Transcribe Audio**
@@ -72,7 +98,7 @@ POST /transcribe
 ```
 
 #### **Request (Form Data)**
-- `file`: `.wav` or `.mp3` file
+- `file`: Audio file (.wav, .mp3, .flac, .m4a, .ogg)
 - `language`: `en`, `de`, etc.
 - `mode`: `local` or `api`
 
@@ -108,31 +134,6 @@ POST /transcribe
   "transcription": "Hello, this is a test."
 }
 ```
-
----
-
-## 🎛️ **Transcription Modes**
-
-### **Local Whisper Model**
-- Processes audio files directly on your machine using the containerized Whisper model
-- No file size limitations beyond your system's resources
-- Works offline without external API dependencies
-- Great for larger files or when privacy is a concern
-
-### **OpenAI API**
-- Sends your audio file to OpenAI's servers for processing
-- Often provides more accurate transcriptions, especially for difficult audio
-- Has the following limitations:
-  - Maximum file size is 25MB
-  - Requires an internet connection
-  - Consumes OpenAI API credits
-
-If your file exceeds the 25MB limit for the API mode:
-- The application will automatically alert you
-- You can simply switch to the local mode instead
-- Alternatively, you can compress your audio file or split it into smaller segments
-
-**The choice is yours!** You can easily select which transcription mode to use while uploading your file, giving you the flexibility to choose the best option for each situation.
 
 ---
 
