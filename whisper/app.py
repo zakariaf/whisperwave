@@ -6,6 +6,7 @@ import mimetypes
 import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from translation_service import TranslationService
 
 app = Flask(__name__)
 CORS(app)
@@ -13,88 +14,8 @@ CORS(app)
 # Load Whisper model
 model = whisper.load_model("base")
 
-# OpenAI API configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")  # Set this in docker-compose.yml
-
-def translate_text(text, target_language, api_key):
-    """
-    Translate text using OpenAI's GPT model.
-
-    Args:
-        text (str): The text to translate
-        target_language (str): The target language code
-        api_key (str): OpenAI API key
-
-    Returns:
-        dict: The translation result with text and processing time
-    """
-    if not text or not target_language or not api_key:
-        return None
-
-    try:
-        start_time = time.time()
-
-        # Get the language name from language code for better prompting
-        language_names = {
-            "en": "English",
-            "es": "Spanish",
-            "fr": "French",
-            "de": "German",
-            "it": "Italian",
-            "pt": "Portuguese",
-            "nl": "Dutch",
-            "ru": "Russian",
-            "zh": "Chinese",
-            "ja": "Japanese",
-            "ko": "Korean",
-            "ar": "Arabic",
-            "hi": "Hindi",
-            "tr": "Turkish",
-            "fa": "Persian"
-        }
-
-        target_language_name = language_names.get(target_language, target_language)
-
-        # Create the API request for translation
-        response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "gpt-3.5-turbo",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": f"You are a professional translator. Translate the following text to {target_language_name}. Only respond with the translation, nothing else."
-                    },
-                    {
-                        "role": "user",
-                        "content": text
-                    }
-                ],
-                "temperature": 0.3
-            }
-        )
-
-        processing_time = time.time() - start_time
-
-        if response.status_code == 200:
-            result = response.json()
-            translated_text = result['choices'][0]['message']['content'].strip()
-
-            return {
-                "text": translated_text,
-                "processing_time": processing_time
-            }
-        else:
-            print(f"Translation API Error: {response.text}", flush=True)
-            return None
-
-    except Exception as e:
-        print(f"Translation Error: {e}", flush=True)
-        return None
+# Initialize translation service
+translation_service = TranslationService()
 
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
@@ -142,7 +63,7 @@ def transcribe():
             # If translation is requested
             if target_language and target_language != language:
                 print(f"Translating from {language} to {target_language}", flush=True)
-                translation_result = translate_text(result["text"], target_language, OPENAI_API_KEY)
+                translation_result = translation_service.translate(result["text"], target_language)
 
             response_data = {
                 "transcription": result["text"],
@@ -161,7 +82,8 @@ def transcribe():
 
         else:
             # Use OpenAI API
-            if not OPENAI_API_KEY:
+            openai_api_key = os.getenv("OPENAI_API_KEY", "")
+            if not openai_api_key:
                 return jsonify({"error": "OpenAI API key not configured"}), 500
 
             # Check file size - OpenAI has a 25MB limit
@@ -191,7 +113,7 @@ def transcribe():
             with open(file_path, "rb") as audio_file:
                 response = requests.post(
                     "https://api.openai.com/v1/audio/transcriptions",
-                    headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+                    headers={"Authorization": f"Bearer {openai_api_key}"},
                     files={"file": (os.path.basename(file_path), audio_file, file_mime)},
                     data={"model": "whisper-1", "language": language}
                 )
@@ -206,7 +128,7 @@ def transcribe():
                 # If translation is requested
                 if target_language and target_language != language:
                     print(f"Translating from {language} to {target_language}", flush=True)
-                    translation_result = translate_text(result["text"], target_language, OPENAI_API_KEY)
+                    translation_result = translation_service.translate(result["text"], target_language)
 
                 response_data = {
                     "transcription": result["text"],
