@@ -1,10 +1,14 @@
 # WhisperWave 🎙️➡️📝
 
-**AI-Powered Audio Transcription App** using OpenAI’s Whisper model.
+**AI-Powered Audio Transcription App** using OpenAI's Whisper model.
+
+WhisperWave gives you the **best of both worlds**: process audio files locally using the built-in Whisper model OR leverage OpenAI's API for enhanced accuracy. The choice is yours for each file you upload!
 
 ## 🚀 Features
-- Upload `.wav` files and transcribe them into text.
+- Upload `.wav` or `.mp3` files and transcribe them into text.
 - Select a language before transcription.
+- Choose between local Whisper model or OpenAI API while uploading your file.
+- Both transcription methods work with all supported audio formats.
 - Built with **Vue + Flask + Whisper AI**.
 - Fully Dockerized with **Docker Compose**.
 - Uses **Whisper as a separate service** for scalability.
@@ -15,18 +19,36 @@
 
 ## 📌 Getting Started
 
+### How It Works
+
+1. **Upload your audio file** (.wav or .mp3)
+2. **Select your language** (English, German, or other supported languages)
+3. **Choose your transcription method**:
+   - **Local Whisper**: Process directly on your machine
+   - **OpenAI API**: Send to OpenAI for potentially more accurate results
+4. **Click "Transcribe"** and get your text!
+
 ### 🔹 **1. Clone the Repository**
 ```bash
 git clone https://github.com/zakariaf/whisperwave.git
 cd whisperwave
 ```
 
-### 🔹 **2. Run with Docker Compose**
+### 🔹 **2. Configure OpenAI API Key**
+Edit the `docker-compose.yml` file and replace `your_openai_api_key_here` with your actual OpenAI API key:
+
+```yaml
+whisper:
+  environment:
+    - OPENAI_API_KEY=your_openai_api_key_here  # Replace with your API key
+```
+
+### 🔹 **3. Run with Docker Compose**
 ```bash
 docker-compose up --build
 ```
 
-### 🔹 **3. Open in Browser**
+### 🔹 **4. Open in Browser**
 - **Frontend**: `http://localhost:5173`
 - **Backend**: `http://localhost:5000`
 - **Whisper API**: `http://localhost:6000`
@@ -37,7 +59,8 @@ docker-compose up --build
 - **Backend**: Flask, Whisper AI (OpenAI)
 - **Frontend**: Vue, Vite, Tailwind CSS
 - **Containerization**: Docker, Docker Compose
-- **Machine Learning**: OpenAI’s Whisper for Speech-to-Text
+- **Machine Learning**: OpenAI's Whisper for Speech-to-Text
+- **Transcription Modes**: Local Whisper model or OpenAI API
 
 ---
 
@@ -49,8 +72,9 @@ POST /transcribe
 ```
 
 #### **Request (Form Data)**
-- `file`: `.wav` file
-- `language`: `en`, `es`, `fr`, etc.
+- `file`: `.wav` or `.mp3` file
+- `language`: `en`, `de`, etc.
+- `mode`: `local` or `api`
 
 #### **Response (JSON)**
 ```json
@@ -73,7 +97,8 @@ POST /transcribe
 ```json
 {
   "file_path": "/uploads/audio.wav",
-  "language": "en"
+  "language": "en",
+  "mode": "local"
 }
 ```
 
@@ -83,6 +108,31 @@ POST /transcribe
   "transcription": "Hello, this is a test."
 }
 ```
+
+---
+
+## 🎛️ **Transcription Modes**
+
+### **Local Whisper Model**
+- Processes audio files directly on your machine using the containerized Whisper model
+- No file size limitations beyond your system's resources
+- Works offline without external API dependencies
+- Great for larger files or when privacy is a concern
+
+### **OpenAI API**
+- Sends your audio file to OpenAI's servers for processing
+- Often provides more accurate transcriptions, especially for difficult audio
+- Has the following limitations:
+  - Maximum file size is 25MB
+  - Requires an internet connection
+  - Consumes OpenAI API credits
+
+If your file exceeds the 25MB limit for the API mode:
+- The application will automatically alert you
+- You can simply switch to the local mode instead
+- Alternatively, you can compress your audio file or split it into smaller segments
+
+**The choice is yours!** You can easily select which transcription mode to use while uploading your file, giving you the flexibility to choose the best option for each situation.
 
 ---
 
@@ -122,11 +172,13 @@ docker-compose up --build
 ---
 
 ## 🏗️ Future Enhancements
-- Support for more audio formats.
-- Improve UI/UX.
-- Implement real-time transcription.
-- Add **GPU acceleration** for Whisper.
-- Deploy to **cloud (AWS, GCP, DigitalOcean)**.
+- Support for more audio formats (FLAC, M4A, OGG, etc.).
+- Improve UI/UX with progress indicators during transcription.
+- Implement real-time transcription for streaming audio.
+- Add **GPU acceleration** for faster local processing.
+- Implement automatic mode selection based on file size.
+- Add transcription history to save previous results.
+- Deploy to **cloud (AWS, GCP, DigitalOcean)** for global access.
 
 ---
 
