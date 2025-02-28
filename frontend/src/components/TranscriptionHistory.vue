@@ -15,7 +15,7 @@
         <div class="history-item-header">
           <div class="file-info">
             <strong>{{ item.fileName }}</strong>
-            <span>({{ item.date }})</span>
+            <span class="date-info">({{ formatDate(item.date) }})</span>
           </div>
           <div class="transcription-details">
             <span class="language">{{ item.language.toUpperCase() }}</span>
@@ -50,8 +50,13 @@ export default {
       }
     },
     truncatedText(text) {
-      if (text.length <= 100) return text;
-      return text.substring(0, 100) + '...';
+      if (text.length <= 80) return text;
+      return text.substring(0, 80) + '...';
+    },
+    formatDate(dateString) {
+      // Format to show only the date part or shortened version
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
     }
   }
 };
@@ -59,14 +64,19 @@ export default {
 
 <style scoped>
 .history-container {
-  margin-top: 30px;
-  border-top: 1px solid #ddd;
-  padding-top: 20px;
+  width: 100%;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }
 
 .history-list {
   margin-top: 10px;
-  max-height: 300px;
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
 }
 
@@ -76,33 +86,46 @@ export default {
   margin-bottom: 10px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.1s;
+  border-left: 3px solid transparent;
 }
 
 .history-item:hover {
   background-color: #f0f0f0;
+  transform: translateX(2px);
+  border-left-color: #007BFF;
 }
 
 .history-item-header {
-  display: flex;
-  justify-content: space-between;
   margin-bottom: 5px;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.date-info {
+  font-size: 0.7em;
+  color: #666;
 }
 
 .transcription-details {
   display: flex;
-  gap: 10px;
+  gap: 5px;
+  margin-top: 3px;
 }
 
 .language {
-  font-size: 0.8em;
+  font-size: 0.7em;
   background-color: #e9ecef;
   padding: 2px 5px;
   border-radius: 3px;
 }
 
 .mode {
-  font-size: 0.8em;
+  font-size: 0.7em;
   padding: 2px 5px;
   border-radius: 3px;
   font-weight: bold;
@@ -120,14 +143,17 @@ export default {
 
 .transcription-preview {
   color: #666;
-  font-size: 0.9em;
+  font-size: 0.8em;
   margin: 5px 0 0 0;
+  line-height: 1.4;
 }
 
 .no-history {
   color: #999;
   text-align: center;
-  padding: 20px;
+  padding: 20px 0;
+  font-style: italic;
+  font-size: 0.9em;
 }
 
 .clear-button {
@@ -139,6 +165,7 @@ export default {
   cursor: pointer;
   font-size: 0.8em;
   margin-top: 10px;
+  width: 100%;
 }
 
 .clear-button:hover {
@@ -146,7 +173,7 @@ export default {
 }
 
 .clear-history {
-  text-align: right;
+  text-align: center;
   margin-top: 10px;
 }
 </style>

@@ -1,60 +1,65 @@
 <!-- src/App.vue -->
 <template>
-  <div class="container">
-    <header class="header">
-      <h1>Audio Transcription</h1>
-    </header>
-
-    <!-- File Uploader Component -->
-    <FileUploader @file-selected="handleFileSelected" />
-
-    <!-- Language Select Component -->
-    <LanguageSelect v-model="language" />
-
-    <!-- Translation Select Component -->
-    <TranslationSelect v-model="targetLanguage" :source-language="language" />
-
-    <!-- Transcription Mode Component -->
-    <TranscriptionMode v-model="transcriptionMode" />
-
-    <!-- Transcribe Button -->
-    <button @click="upload" :disabled="isLoading">
-      <span v-if="!isLoading">Transcribe</span>
-      <span v-else>Transcribing...</span>
-    </button>
-
-    <!-- Loading Indicator -->
-    <div v-if="isLoading" class="loading">
-      <div class="spinner"></div>
-      <p>Processing your audio file...</p>
+  <div class="app-container">
+    <!-- Left sidebar for history -->
+    <div class="sidebar">
+      <TranscriptionHistory
+        :history="transcriptionHistory"
+        @select-transcription="loadHistoryItem"
+        @clear-history="clearHistory"
+      />
     </div>
 
-    <!-- Error Message -->
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
+    <!-- Main content area -->
+    <div class="main-content">
+      <header class="header">
+        <h1>Audio Transcription</h1>
+      </header>
 
-    <!-- Display Transcription -->
-    <div v-if="transcription" class="result">
-      <h2>Transcription Result:</h2>
-      <p>{{ transcription }}</p>
+      <!-- File Uploader Component -->
+      <FileUploader @file-selected="handleFileSelected" />
 
-      <!-- Display Translation if available -->
-      <div v-if="translation" class="translation">
-        <h3>Translation:</h3>
-        <p>{{ translation }}</p>
+      <!-- Language Select Component -->
+      <LanguageSelect v-model="language" />
+
+      <!-- Translation Select Component -->
+      <TranslationSelect v-model="targetLanguage" :source-language="language" />
+
+      <!-- Transcription Mode Component -->
+      <TranscriptionMode v-model="transcriptionMode" />
+
+      <!-- Transcribe Button -->
+      <button @click="upload" :disabled="isLoading">
+        <span v-if="!isLoading">Transcribe</span>
+        <span v-else>Transcribing...</span>
+      </button>
+
+      <!-- Loading Indicator -->
+      <div v-if="isLoading" class="loading">
+        <div class="spinner"></div>
+        <p>Processing your audio file...</p>
       </div>
 
-      <!-- Analytics Display -->
-      <AnalyticsDisplay :analytics="analytics" />
-    </div>
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
 
-    <!-- Transcription History -->
-    <TranscriptionHistory
-      :history="transcriptionHistory"
-      @select-transcription="loadHistoryItem"
-      @clear-history="clearHistory"
-    />
+      <!-- Display Transcription -->
+      <div v-if="transcription" class="result">
+        <h2>Transcription Result:</h2>
+        <p>{{ transcription }}</p>
+
+        <!-- Display Translation if available -->
+        <div v-if="translation" class="translation">
+          <h3>Translation:</h3>
+          <p>{{ translation }}</p>
+        </div>
+
+        <!-- Analytics Display -->
+        <AnalyticsDisplay :analytics="analytics" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -217,3 +222,48 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.app-container {
+  display: flex;
+  margin: 40px auto;
+  max-width: 1200px;
+  background: transparent;
+}
+
+.sidebar {
+  width: 300px;
+  margin-right: 20px;
+  flex-shrink: 0;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+  position: sticky;
+  top: 40px;
+}
+
+.main-content {
+  flex-grow: 1;
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column-reverse;
+  }
+
+  .sidebar {
+    width: auto;
+    margin-right: 0;
+    margin-top: 20px;
+    max-height: none;
+    position: static;
+  }
+}
+</style>

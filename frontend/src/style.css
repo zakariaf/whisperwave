@@ -7,16 +7,6 @@ body {
   background-color: #f9f9f9;
 }
 
-/* Container for the app */
-.container {
-  max-width: 600px;
-  margin: 40px auto;
-  background: #fff;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-}
-
 /* Header styling */
 .header {
   text-align: center;
@@ -182,4 +172,18 @@ button:disabled:hover {
   font-size: 0.85em;
   color: #6c757d;
   font-style: italic;
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  button {
+    margin: 15px 0;
+  }
+
+  .uploader,
+  .language-select,
+  .transcription-mode,
+  .translation-select {
+    margin: 8px 0;
+  }
 }
