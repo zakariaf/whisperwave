@@ -9,10 +9,12 @@ WhisperWave gives you the **best of both worlds**: process audio files locally u
 - Select a language before transcription.
 - Choose between local Whisper model or OpenAI API while uploading your file.
 - Both transcription methods work with all supported audio formats.
+- **Translate transcriptions** to multiple languages.
+- **Performance analytics** to compare local vs. API transcription.
+- View your transcription history and restore previous results.
 - Built with **Vue + Flask + Whisper AI**.
 - Fully Dockerized with **Docker Compose**.
 - Uses **Whisper as a separate service** for scalability.
-- View your transcription history and restore previous results.
 
 ![WhisperWave Screenshot](screenshot.png)
 
@@ -27,7 +29,8 @@ WhisperWave gives you the **best of both worlds**: process audio files locally u
 3. **Choose your transcription method**:
    - **Local Whisper**: Process directly on your machine
    - **OpenAI API**: Send to OpenAI for potentially more accurate results
-4. **Click "Transcribe"** and get your text!
+4. **Optionally select a target translation language**
+5. **Click "Transcribe"** and get your text!
 
 ### 🔹 **1. Clone the Repository**
 ```bash
@@ -51,7 +54,7 @@ docker-compose up --build
 
 ### 🔹 **4. Open in Browser**
 - **Frontend**: `http://localhost:5173`
-- **Backend**: `http://localhost:5000`
+- **Backend**: `http://localhost:5001`
 - **Whisper API**: `http://localhost:6000`
 
 ---
@@ -62,6 +65,7 @@ docker-compose up --build
 - **Containerization**: Docker, Docker Compose
 - **Machine Learning**: OpenAI's Whisper for Speech-to-Text
 - **Transcription Modes**: Local Whisper model or OpenAI API
+- **Translation**: OpenAI GPT API for multilingual support
 
 ---
 
@@ -90,6 +94,52 @@ If your file exceeds the 25MB limit for the API mode:
 
 ---
 
+## 🌍 **Translation Feature**
+
+WhisperWave includes support for translating your transcriptions to multiple languages:
+
+### **How It Works**
+1. After selecting the source language for your audio, choose a target language for translation (optional)
+2. When you transcribe your audio, the text will be automatically translated to your chosen language
+3. Both the original transcription and translation will be displayed
+
+### **Supported Languages**
+- English, Spanish, French, German, Italian, Portuguese, Dutch
+- Russian, Chinese, Japanese, Korean, Arabic, Hindi
+- Turkish, Persian/Farsi, and more!
+
+### **Translation Engine**
+- Translations are powered by OpenAI's GPT-3.5 Turbo model
+- All translations use the OpenAI API regardless of which transcription mode you select
+- An OpenAI API key is required for translation functionality
+
+---
+
+## 📊 **Analytics Feature**
+
+WhisperWave includes built-in analytics to help you compare and optimize your transcription workflow:
+
+### **Per-Transcription Analytics**
+- Processing time for each transcription
+- Model used (base for local, whisper-1 for API)
+- Transcription mode (local or API)
+- Translation processing time (if applicable)
+
+### **Comparative Analytics**
+- Average processing time by mode (local vs. API)
+- Usage count for each mode
+- Historical performance data
+- Model usage statistics
+
+### **Benefits**
+- Make data-driven decisions about which mode to use for different files
+- Track performance metrics over time
+- Compare processing speed between local and API options
+
+Analytics data is stored locally in your browser and is available even after restarting the application.
+
+---
+
 ## 📄 API Endpoints (Flask)
 
 ### 🎙️ **Transcribe Audio**
@@ -101,11 +151,19 @@ POST /transcribe
 - `file`: Audio file (.wav, .mp3, .flac, .m4a, .ogg)
 - `language`: `en`, `de`, etc.
 - `mode`: `local` or `api`
+- `target_language`: (Optional) Language code for translation
 
 #### **Response (JSON)**
 ```json
 {
-  "transcription": "This is the transcribed text."
+  "transcription": "This is the transcribed text.",
+  "translation": "Dies ist der übersetzte Text.",
+  "analytics": {
+    "processing_time": 4.32,
+    "mode": "local",
+    "model": "base",
+    "translation_time": 1.25
+  }
 }
 ```
 
@@ -124,14 +182,22 @@ POST /transcribe
 {
   "file_path": "/uploads/audio.wav",
   "language": "en",
-  "mode": "local"
+  "mode": "local",
+  "target_language": "fr"
 }
 ```
 
 #### **Response (JSON)**
 ```json
 {
-  "transcription": "Hello, this is a test."
+  "transcription": "Hello, this is a test.",
+  "translation": "Bonjour, c'est un test.",
+  "analytics": {
+    "processing_time": 3.21,
+    "mode": "local",
+    "model": "base",
+    "translation_time": 1.05
+  }
 }
 ```
 
@@ -173,13 +239,14 @@ docker-compose up --build
 ---
 
 ## 🏗️ Future Enhancements
-- Support for more audio formats (FLAC, M4A, OGG, etc.).
-- Improve UI/UX with progress indicators during transcription.
-- Implement real-time transcription for streaming audio.
-- Add **GPU acceleration** for faster local processing.
-- Implement automatic mode selection based on file size.
-- Add transcription history to save previous results.
-- Deploy to **cloud (AWS, GCP, DigitalOcean)** for global access.
+- Implement real-time transcription for streaming audio
+- Add **GPU acceleration** for faster local processing
+- Add batch processing for multiple files at once
+- Create speaker diarization to identify different speakers
+- Add audio editing capabilities (trim, cut, etc.) before transcription
+- Add custom vocabulary support for domain-specific terminology
+- Implement user accounts for cloud synchronization of transcription history
+- Deploy to **cloud (AWS, GCP, DigitalOcean)** for global access
 
 ---
 
