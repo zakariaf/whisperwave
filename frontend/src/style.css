@@ -143,3 +143,43 @@ button:disabled:hover {
   font-size: 0.85em;
   color: #d32f2f;
 }
+
+/* Translation styles */
+.translation {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f0f7ff;
+  border-left: 4px solid #007BFF;
+  border-radius: 4px;
+}
+
+.translation h3 {
+  margin-top: 0;
+  font-size: 1.1em;
+  color: #0056b3;
+}
+
+/* Include translation select styles in your existing selectors */
+.uploader,
+.language-select,
+.transcription-mode,
+.translation-select {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.uploader label,
+.language-select label,
+.transcription-mode .mode-label,
+.translation-select label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.translation-note {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #6c757d;
+  font-style: italic;
+}

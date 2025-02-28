@@ -11,6 +11,9 @@
     <!-- Language Select Component -->
     <LanguageSelect v-model="language" />
 
+    <!-- Translation Select Component -->
+    <TranslationSelect v-model="targetLanguage" :source-language="language" />
+
     <!-- Transcription Mode Component -->
     <TranscriptionMode v-model="transcriptionMode" />
 
@@ -36,6 +39,12 @@
       <h2>Transcription Result:</h2>
       <p>{{ transcription }}</p>
 
+      <!-- Display Translation if available -->
+      <div v-if="translation" class="translation">
+        <h3>Translation:</h3>
+        <p>{{ translation }}</p>
+      </div>
+
       <!-- Analytics Display -->
       <AnalyticsDisplay :analytics="analytics" />
     </div>
@@ -53,6 +62,7 @@
 import FileUploader from './components/FileUploader.vue';
 import LanguageSelect from './components/LanguageSelect.vue';
 import TranscriptionMode from './components/TranscriptionMode.vue';
+import TranslationSelect from './components/TranslationSelect.vue';
 import TranscriptionHistory from './components/TranscriptionHistory.vue';
 import AnalyticsDisplay from './components/AnalyticsDisplay.vue';
 
@@ -62,6 +72,7 @@ export default {
     FileUploader,
     LanguageSelect,
     TranscriptionMode,
+    TranslationSelect,
     TranscriptionHistory,
     AnalyticsDisplay,
   },
@@ -69,14 +80,20 @@ export default {
     return {
       file: null,
       language: 'en',
+      targetLanguage: '',
       transcriptionMode: 'local',
       transcription: '',
+      translation: '',
       isLoading: false,
       errorMessage: '',
       transcriptionHistory: [],
       selectedFileName: '',
       analytics: null
     };
+  },
+  mounted() {
+    // Load transcription history from localStorage when the app starts
+    this.loadHistory();
   },
   methods: {
     handleFileSelected(file) {
@@ -121,7 +138,9 @@ export default {
 
     loadHistoryItem(item) {
       this.transcription = item.transcription;
+      this.translation = item.translation || '';
       this.language = item.language;
+      this.targetLanguage = item.targetLanguage || '';
       this.transcriptionMode = item.mode;
       this.selectedFileName = item.fileName;
       this.analytics = item.analytics;
@@ -145,6 +164,7 @@ export default {
 
       // Reset previous results and error messages
       this.transcription = '';
+      this.translation = '';
       this.errorMessage = '';
       this.analytics = null;
       this.isLoading = true;
@@ -153,6 +173,9 @@ export default {
       formData.append('file', this.file);
       formData.append('language', this.language);
       formData.append('mode', this.transcriptionMode);
+      if (this.targetLanguage) {
+        formData.append('target_language', this.targetLanguage);
+      }
 
       try {
         const response = await fetch('http://localhost:5001/transcribe', {
@@ -168,6 +191,7 @@ export default {
 
         const data = await response.json();
         this.transcription = data.transcription;
+        this.translation = data.translation || '';
         this.analytics = data.analytics;
 
         // Save to history
@@ -176,8 +200,10 @@ export default {
             fileName: this.file.name,
             date: new Date().toLocaleString(),
             language: this.language,
+            targetLanguage: this.targetLanguage,
             mode: this.transcriptionMode,
             transcription: this.transcription,
+            translation: this.translation,
             analytics: this.analytics
           });
         }

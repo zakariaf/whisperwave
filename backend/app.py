@@ -20,6 +20,7 @@ def transcribe():
     file = request.files['file']
     language = request.form.get('language', 'en')
     mode = request.form.get('mode', 'local')  # Get the transcription mode
+    target_language = request.form.get('target_language', '')  # Get optional translation language
 
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
@@ -33,13 +34,19 @@ def transcribe():
 
         # Call Whisper service
         try:
+            request_data = {
+                'file_path': file_path,
+                'language': language,
+                'mode': mode  # Pass the transcription mode
+            }
+
+            # Add target_language if it's provided
+            if target_language:
+                request_data['target_language'] = target_language
+
             response = requests.post(
                 WHISPER_SERVICE_URL,
-                json={
-                    'file_path': file_path,
-                    'language': language,
-                    'mode': mode  # Pass the transcription mode
-                }
+                json=request_data
             )
 
             if response.status_code == 200:
