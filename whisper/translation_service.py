@@ -63,7 +63,7 @@ class TranslationService:
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gpt-3.5-turbo",
+                    "model": "gpt-4o-mini",
                     "messages": [
                         {
                             "role": "system",

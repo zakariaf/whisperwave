@@ -109,7 +109,7 @@ WhisperWave includes support for translating your transcriptions to multiple lan
 - Turkish, Persian/Farsi, and more!
 
 ### **Translation Engine**
-- Translations are powered by OpenAI's GPT-3.5 Turbo model
+- Translations are powered by OpenAI's GPT-4o mini model
 - All translations use the OpenAI API regardless of which transcription mode you select
 - An OpenAI API key is required for translation functionality
 
