@@ -36,6 +36,13 @@
       <h2>Transcription Result:</h2>
       <p>{{ transcription }}</p>
     </div>
+
+    <!-- Transcription History -->
+    <TranscriptionHistory
+      :history="transcriptionHistory"
+      @select-transcription="loadHistoryItem"
+      @clear-history="clearHistory"
+    />
   </div>
 </template>
 
@@ -43,6 +50,7 @@
 import FileUploader from './components/FileUploader.vue';
 import LanguageSelect from './components/LanguageSelect.vue';
 import TranscriptionMode from './components/TranscriptionMode.vue';
+import TranscriptionHistory from './components/TranscriptionHistory.vue';
 
 export default {
   name: 'App',
@@ -50,6 +58,7 @@ export default {
     FileUploader,
     LanguageSelect,
     TranscriptionMode,
+    TranscriptionHistory,
   },
   data() {
     return {
@@ -58,12 +67,15 @@ export default {
       transcriptionMode: 'local',
       transcription: '',
       isLoading: false,
-      errorMessage: ''
+      errorMessage: '',
+      transcriptionHistory: [],
+      selectedFileName: ''
     };
   },
   methods: {
     handleFileSelected(file) {
       this.file = file;
+      this.selectedFileName = file ? file.name : '';
 
       // Auto-select mode based on file size
       if (file && file.size > 25 * 1024 * 1024 && this.transcriptionMode === 'api') {
@@ -73,6 +85,44 @@ export default {
           this.errorMessage = '';
         }, 5000); // Clear message after 5 seconds
       }
+    },
+
+    // History management methods
+    saveToHistory(item) {
+      // Add new item to beginning of history array
+      this.transcriptionHistory.unshift(item);
+
+      // Limit history to last 10 items
+      if (this.transcriptionHistory.length > 10) {
+        this.transcriptionHistory = this.transcriptionHistory.slice(0, 10);
+      }
+
+      // Save to localStorage
+      localStorage.setItem('transcriptionHistory', JSON.stringify(this.transcriptionHistory));
+    },
+
+    loadHistory() {
+      const savedHistory = localStorage.getItem('transcriptionHistory');
+      if (savedHistory) {
+        try {
+          this.transcriptionHistory = JSON.parse(savedHistory);
+        } catch (e) {
+          console.error('Error loading history:', e);
+          this.transcriptionHistory = [];
+        }
+      }
+    },
+
+    loadHistoryItem(item) {
+      this.transcription = item.transcription;
+      this.language = item.language;
+      this.transcriptionMode = item.mode;
+      this.selectedFileName = item.fileName;
+    },
+
+    clearHistory() {
+      this.transcriptionHistory = [];
+      localStorage.removeItem('transcriptionHistory');
     },
     async upload() {
       if (!this.file) {
@@ -110,6 +160,17 @@ export default {
 
         const data = await response.json();
         this.transcription = data.transcription;
+
+        // Save to history
+        if (this.transcription && this.file) {
+          this.saveToHistory({
+            fileName: this.file.name,
+            date: new Date().toLocaleString(),
+            language: this.language,
+            mode: this.transcriptionMode,
+            transcription: this.transcription
+          });
+        }
       } catch (error) {
         console.error('Error during transcription:', error);
         this.errorMessage = 'Failed to connect to the transcription service. Please try again.';
