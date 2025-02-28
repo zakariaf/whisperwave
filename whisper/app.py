@@ -2,6 +2,7 @@ import whisper
 import os
 import requests
 import json
+import mimetypes
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -25,6 +26,10 @@ def transcribe():
     language = data.get("language", "en")
     transcription_mode = data.get("mode", "local")  # Default to local if not specified
 
+    # Get the file type (wav or mp3)
+    file_type = os.path.splitext(file_path)[1].lower()
+    print(f"File type detected: {file_type}", flush=True)
+
     if not file_path:
         print("❌ Error: Missing `file_path` in request", flush=True)
         return jsonify({"error": "Missing `file_path` in request"}), 400
@@ -37,7 +42,8 @@ def transcribe():
 
     try:
         if transcription_mode == "local":
-            # Use local Whisper model
+            # Use local Whisper model - supports both WAV and MP3 directly
+            print(f"Using local Whisper model for {file_type} file", flush=True)
             result = model.transcribe(file_path, fp16=False, language=language)
             return jsonify({"transcription": result["text"]})
         else:
@@ -53,12 +59,22 @@ def transcribe():
                     "error": "File exceeds OpenAI's 25MB limit. Please use a smaller file or the local option."
                 }), 413
 
+            # Set the correct MIME type for the API request
+            if file_type == '.wav':
+                file_mime = 'audio/wav'
+            elif file_type == '.mp3':
+                file_mime = 'audio/mpeg'
+            else:
+                file_mime = 'audio/wav'  # Default fallback
+
+            print(f"Using OpenAI API for {file_type} file with MIME type: {file_mime}", flush=True)
+
             # Call OpenAI Whisper API
             with open(file_path, "rb") as audio_file:
                 response = requests.post(
                     "https://api.openai.com/v1/audio/transcriptions",
                     headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-                    files={"file": audio_file},
+                    files={"file": (os.path.basename(file_path), audio_file, file_mime)},
                     data={"model": "whisper-1", "language": language}
                 )
 

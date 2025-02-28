@@ -51,7 +51,7 @@ export default {
     },
     async upload() {
       if (!this.file) {
-        alert('Please select a WAV file.');
+        alert('Please select a WAV or MP3 file.');
         return;
       }
 

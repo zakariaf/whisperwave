@@ -1,11 +1,11 @@
 <!-- src/components/FileUploader.vue -->
 <template>
   <div class="uploader">
-    <label for="fileInput">Upload WAV File</label>
+    <label for="fileInput">Upload WAV/MP3 File</label>
     <input
       id="fileInput"
       type="file"
-      accept=".wav"
+      accept=".wav,.mp3"
       @change="onFileChange"
     />
     <div v-if="selectedFile" class="file-info">
